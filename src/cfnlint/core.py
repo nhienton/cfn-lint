@@ -161,19 +161,19 @@ def get_args_filenames(cli_args):
         sys.exit(0)
 
     if not sys.stdin.isatty() and not config.templates:
-        return(config, [None], formatter)
+        return (config, [None], formatter)
 
     if not config.templates:
         # Not specified, print the help
         config.parser.print_help()
         sys.exit(1)
 
-    return(config, config.templates, formatter)
+    return (config, config.templates, formatter)
 
 
 def get_template_rules(filename, args):
     """ Get Template Configuration items and set them as default values"""
-    global __CACHED_RULES  #pylint: disable=global-statement
+    global __CACHED_RULES  # pylint: disable=global-statement
 
     ignore_bad_template = False
     if args.ignore_bad_template:
@@ -193,8 +193,8 @@ def get_template_rules(filename, args):
 
     if errors:
         if len(errors) == 1 and ignore_bad_template and errors[0].rule.id == 'E0000':
-            return(template, [], [])
-        return(template, [], errors)
+            return (template, [], [])
+        return (template, [], errors)
 
     args.template_args = template
 
@@ -217,7 +217,7 @@ def get_template_rules(filename, args):
             args.custom_rules,
         )
 
-    return(template, __CACHED_RULES, [])
+    return (template, __CACHED_RULES, [])
 
 
 def run_checks(filename, template, rules, regions, validate_registry_types, mandatory_rules=None):
@@ -230,14 +230,19 @@ def run_checks(filename, template, rules, regions, validate_registry_types, mand
             raise InvalidRegionException(msg, 32)
 
     if validate_registry_types:
+        # Validate input of client for --validate-registry-types
         if not set(validate_registry_types).issubset(set(REGISTRY_TYPES)):
             unsupported_registry_types = list(set(validate_registry_types).difference(set(REGISTRY_TYPES)))
             msg = 'Registry types %s are unsupported. Supported registry types are %s' % (
                 unsupported_registry_types, REGISTRY_TYPES
             )
             raise InvalidRegistryTypesException(msg, 32)
-        else:
-            print('everything valid')
+
+        # Check the presence of modules in the template
+        template_obj = Template(filename, template, regions)
+        modules = template_obj.get_modules()
+        if modules:
+            print(modules)
 
     errors = []
 
@@ -253,9 +258,9 @@ def run_checks(filename, template, rules, regions, validate_registry_types, mand
 
     if errors:
         if ignore_transform_error:
-            return([])   # if there is a transform error we can't continue
+            return ([])  # if there is a transform error we can't continue
 
-        return(errors)
+        return (errors)
 
     # Only do rule analysis if Transform was successful
     try:
@@ -265,4 +270,4 @@ def run_checks(filename, template, rules, regions, validate_registry_types, mand
         UnexpectedRuleException(msg, 1)
     errors.sort(key=lambda x: (x.filename, x.linenumber, x.rule.id))
 
-    return(errors)
+    return (errors)
