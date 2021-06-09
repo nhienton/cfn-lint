@@ -11,6 +11,7 @@ from jsonschema.exceptions import ValidationError
 
 import cfnlint.runner
 from cfnlint.template import Template
+from cfnlint.registry import Registry
 from cfnlint.rules import RulesCollection, ParseError, TransformError
 import cfnlint.config
 import cfnlint.formatters
@@ -238,11 +239,17 @@ def run_checks(filename, template, rules, regions, validate_registry_types, mand
             )
             raise InvalidRegistryTypesException(msg, 32)
 
-        # Check the presence of modules in the template
-        template_obj = Template(filename, template, regions)
-        modules = template_obj.get_modules()
-        if modules:
-            print(modules)
+        # MODULE is the only accepted value right now, but eventually other values will be supported such as RESOURCE
+        for registry_type in validate_registry_types:
+            if registry_type == 'MODULE':
+                # Check the presence of modules in the template
+                template_obj = Template(filename, template, regions)
+                modules = template_obj.get_modules()
+                if modules:
+                    registry = Registry(filename, template, regions)
+                    # For each module extracted from the template, verify if it's already locally cached
+                    for module in modules.keys():
+                        registry.check_folders(module, registry_type)
 
     errors = []
 
