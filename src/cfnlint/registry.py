@@ -2,12 +2,16 @@
 Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
+from typing import Set
 
-import logging
 from cfnlint.template import Template
+
 import boto3
+import json
+import logging
 import os
 import platform
+import subprocess
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +26,7 @@ class Registry(object):
         self.cfn = Template(filename, template, regions)
 
     # Check if the appropriate folder already exists
-    def check_folders(self, module, registry_type):
+    def check_folders(self, name, registry_type):
         account_id = boto3.client('sts').get_caller_identity().get('Account')
         username = None
         path_split = os.getcwd().split('/')
@@ -36,19 +40,49 @@ class Registry(object):
 
         for region in self.regions:
             if is_windows:
-                path = "C:/Users/%s/AppData/cloudformation/%s/%s/%s" % (username, account_id, region, module)
+                path = "C:/Users/%s/AppData/cloudformation/%s/%s/%s" % (username, account_id, region, name)
             else:
-                path = "/Users/%s/.cloudformation/%s/%s/%s" % (username, account_id, region, module)
+                path = "/Users/%s/.cloudformation/%s/%s/%s" % (username, account_id, region, name)
 
             if not os.path.isdir(path):
-                self.create_folder(path)
+                self.create_folder(path, region, name, registry_type)
 
-    def create_folder(self, path):
+    def create_folder(self, path, region, name, registry_type):
         try:
-            print(path)
             os.makedirs(path)
+            self.aws_call_registry(region, name, registry_type, path)
         except OSError as error:
             print(error)
 
+    def aws_call_registry(self, region, name, registry_type, path):
+        cmd = ['aws', '--region', region, 'cloudformation', 'describe-type', '--type', registry_type, '--type-name',
+               name]
 
+        metadata = {}
+        schema = {}
 
+        # Recuperate detailed information about a registered extension
+        extension = json.loads(subprocess.check_output(cmd))
+
+        for field in extension:
+            if field != 'Schema':
+                metadata[field] = extension[field]
+            else:
+                schema[field] = extension[field]
+
+        self.create_schema_file(schema, path)
+        self.create_metadata_file(metadata, path)
+
+    def create_schema_file(self, data, path):
+        try:
+            with open(path + '/schema.json', 'x') as f:
+                json.dump(data, f)
+        except OSError as error:
+            print(error)
+
+    def create_metadata_file(self, data, path):
+        try:
+            with open(path + '/metadata.json', 'x') as f:
+                json.dump(data, f)
+        except OSError as error:
+            print(error)
