@@ -22,7 +22,7 @@ class TestRunChecks(BaseTestCase):
             (template, rules, _) = cfnlint.core.get_template_rules(filename, args)
             results.extend(
                 cfnlint.core.run_checks(
-                    filename, template, rules, ['us-east-1']))
+                    filename, template, rules, ['us-east-1'], []))
 
         assert(results == [])
 
@@ -37,7 +37,7 @@ class TestRunChecks(BaseTestCase):
             (template, rules, _) = cfnlint.core.get_template_rules(filename, args)
             results.extend(
                 cfnlint.core.run_checks(
-                    filename, template, rules, ['us-east-1']))
+                    filename, template, rules, ['us-east-1'], []))
 
         assert(results[0].rule.id == 'W2506')
         assert(results[1].rule.id == 'W2001')
@@ -49,7 +49,7 @@ class TestRunChecks(BaseTestCase):
         (template, rules, _) = cfnlint.core.get_template_rules(filename, args)
         err = None
         try:
-            cfnlint.core.run_checks(filename, template, rules, ['not-a-region'])
+            cfnlint.core.run_checks(filename, template, rules, ['not-a-region'], [])
         except cfnlint.core.InvalidRegionException as e:
             err = e
         assert(type(err) == cfnlint.core.InvalidRegionException)
