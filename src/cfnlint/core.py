@@ -248,7 +248,7 @@ def run_checks(filename, template, rules, regions, validate_registry_types, mand
                 if modules:
                     registry = Registry(filename, template, regions)
                     # For each module extracted from the template, verify if it's already locally cached
-                    for module in modules.keys():
+                    for module in modules:
                         registry.check_folders(module, registry_type)
 
     errors = []

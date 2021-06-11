@@ -2,16 +2,16 @@
 Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 SPDX-License-Identifier: MIT-0
 """
-from typing import Set
 
-from cfnlint.template import Template
 
-import boto3
 import json
 import logging
 import os
 import platform
 import subprocess
+import boto3
+from cfnlint.template import Template
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -36,13 +36,13 @@ class Registry(object):
         except IndexError as error:
             print(error)
 
-        is_windows = True if platform.system() == 'win32' else False
+        is_windows = platform.system() == 'win32'
 
         for region in self.regions:
             if is_windows:
-                path = "C:/Users/%s/AppData/cloudformation/%s/%s/%s" % (username, account_id, region, name)
+                path = 'C:/Users/%s/AppData/cloudformation/%s/%s/%s' % (username, account_id, region, name)
             else:
-                path = "/Users/%s/.cloudformation/%s/%s/%s" % (username, account_id, region, name)
+                path = '/Users/%s/.cloudformation/%s/%s/%s' % (username, account_id, region, name)
 
             if not os.path.isdir(path):
                 self.create_folder(path, region, name, registry_type)
