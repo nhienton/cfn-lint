@@ -75,14 +75,14 @@ class Registry(object):
 
     def create_schema_file(self, data, path):
         try:
-            with open(path + '/schema.json', 'x') as f:
+            with open(path + '/schema.json', 'w') as f:
                 json.dump(data, f)
         except OSError as error:
             print(error)
 
     def create_metadata_file(self, data, path):
         try:
-            with open(path + '/metadata.json', 'x') as f:
+            with open(path + '/metadata.json', 'w') as f:
                 json.dump(data, f)
         except OSError as error:
             print(error)
