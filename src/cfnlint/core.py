@@ -9,6 +9,8 @@ import sys
 
 from jsonschema.exceptions import ValidationError
 
+import boto3
+
 import cfnlint.runner
 from cfnlint.template import Template
 from cfnlint.registry import Registry
@@ -249,7 +251,8 @@ def run_checks(filename, template, rules, regions, validate_registry_types, mand
                     registry = Registry(filename, template, regions)
                     # For each module extracted from the template, verify if it's already locally cached
                     for module in modules:
-                        registry.check_folders(module, registry_type)
+                        registry.check_folders(boto3.client('sts'), module,
+                                               registry_type)
 
     errors = []
 
