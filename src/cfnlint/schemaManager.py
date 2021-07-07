@@ -11,6 +11,7 @@ import platform
 import botocore.exceptions
 import boto3
 from cfnlint.template import Template
+from cfnlint.helpers import MODULE_SCHEMAS
 
 LOGGER = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ class SchemaManager(object):
 
             if not os.path.isdir(path):
                 self.create_folder(path, name, registry_type)
+            MODULE_SCHEMAS.append(path)
 
     def create_folder(self, path, name, registry_type):
         try:

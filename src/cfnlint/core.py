@@ -104,9 +104,10 @@ def get_formatter(fmt):
 
 
 def get_rules(append_rules, ignore_rules, include_rules, configure_rules=None, include_experimental=False,
-              mandatory_rules=None, custom_rules=None):
+              mandatory_rules=None, custom_rules=None, validate_registry_types=None):
     rules = RulesCollection(ignore_rules, include_rules, configure_rules,
-                            include_experimental, mandatory_rules)
+                            include_experimental, mandatory_rules, validate_registry_types)
+
     rules_paths = [DEFAULT_RULESDIR] + append_rules
     try:
         for rules_path in rules_paths:
@@ -218,8 +219,8 @@ def get_template_rules(filename, args):
             args.include_experimental,
             args.mandatory_checks,
             args.custom_rules,
+            args.validate_registry_types
         )
-
     return (template, __CACHED_RULES, [])
 
 

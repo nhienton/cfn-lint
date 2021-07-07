@@ -341,6 +341,7 @@ def load_resource(package, filename='us-east-1.json'):
 
 RESOURCE_SPECS = {}
 REGISTRY_SCHEMAS = []
+MODULE_SCHEMAS = []
 
 def merge_spec(source, destination):
     """ Recursive merge spec dict """
@@ -505,7 +506,6 @@ def load_plugins(directory):
             mod = import_filename(filename.replace('.py', ''), root)
             if mod is not None:
                 result.extend(create_rules(mod))
-
     return result
 
 
